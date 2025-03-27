@@ -1,4 +1,13 @@
-import { IUser } from '../models/userModel';
+import { Document } from 'mongoose';
+export interface IUser {
+  email: string;
+  password: string;
+}
+
+export interface IUserDBDocument extends Document {
+  email: string;
+  password: string;
+}
 
 export interface IUserService {
   getAllUsers(): Promise<IUser[]>;
