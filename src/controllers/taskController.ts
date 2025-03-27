@@ -1,8 +1,8 @@
-import { Request, Response } from 'express';
-import { v4 as uuidv4 } from 'uuid';
-import { StatusCodes } from 'http-status-codes';
-import { TaskService } from '../services/taskService';
-import { ITask } from '../models/taskModel';
+import { Request, Response } from "express";
+import { Types } from "mongoose";
+import { StatusCodes } from "http-status-codes";
+import { TaskService } from "@/services/taskService";
+import { ITask } from "@/interfaces/taskInterface";
 import {
   ERROR_FETCHING_TASKS,
   ERROR_CREATING_TASK,
@@ -11,16 +11,14 @@ import {
   TASK_NOT_FOUND,
   ERROR_ID_REQUIRED,
   ERROR_FETCHING_TASK_BY_ID,
-} from '@/constants/errors';
+} from "@/constants/errors";
 
 const taskService = new TaskService();
 
 // GET all tasks
 export const getAllTasks = async (req: Request, res: Response): Promise<void> => {
   try {
-    console.log("eNTRO AL METODO");
     const tasks = await taskService.getAllTasks();
-    console.log("tasks", tasks);
     res.status(StatusCodes.OK).json(tasks);
   } catch (error) {
     res.status(StatusCodes.SERVICE_UNAVAILABLE).json({ message: ERROR_FETCHING_TASKS });
@@ -45,18 +43,31 @@ export const getTaskById = async (req: Request, res: Response): Promise<void> =>
   }
 };
 
+// GET task by id
+export const getTasksByUserId = async (req: Request, res: Response): Promise<void> => {
+  try {
+    if (!req.params.id) {
+      res.status(StatusCodes.BAD_GATEWAY).json(ERROR_ID_REQUIRED);
+      return;
+    }
+    const userId = new Types.ObjectId(req.params.id);
+    const tasks = await taskService.getTasksByUserId(userId);
+    res.status(StatusCodes.OK).json(tasks);
+  } catch (error) {
+    res.status(StatusCodes.SERVICE_UNAVAILABLE).json({ message: ERROR_FETCHING_TASK_BY_ID });
+  }
+};
+
 // POST create task
 export const createTask = async (req: Request, res: Response): Promise<void> => {
   try {
     const { title, description, userId } = req.body;
+    // const userObjectId = new Types.ObjectId(userId);
     const newTask: ITask = {
-      id: uuidv4(),
       title,
       description,
       isCompleted: false,
       userId,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
     };
     
     const createdTask = await taskService.createTask(newTask);
@@ -69,15 +80,12 @@ export const createTask = async (req: Request, res: Response): Promise<void> => 
 // PUT update task
 export const updateTask = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { title, description, isCompleted, userId, createdAt } = req.body;
+    const { title, description, isCompleted, userId } = req.body;
     const updatedTask: ITask = {
-        id: req.params.id,
         title,
         description,
         isCompleted,
-        userId,  // Placeholder for userId update logic
-        createdAt,
-        updatedAt: new Date().toISOString(),
+        userId,
     };
 
     const result = await taskService.updateTask(req.params.id, updatedTask);
@@ -102,7 +110,7 @@ export const deleteTask = async (req: Request, res: Response): Promise<void> => 
     if (!result) {
       res.status(StatusCodes.NOT_FOUND).json({ message: TASK_NOT_FOUND });
     } else {
-      res.status(StatusCodes.OK).json({ message: 'Task deleted' });
+      res.status(StatusCodes.OK).json({ message: "Task deleted" });
     }
   } catch (error) {
     res.status(StatusCodes.SERVICE_UNAVAILABLE).json({ message: ERROR_DELETING_TASKS });

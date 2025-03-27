@@ -1,8 +1,7 @@
-import { Request, Response } from 'express';
-import { v4 as uuidv4 } from 'uuid';
-import { StatusCodes } from 'http-status-codes';
-import { UserService } from '../services/userService';
-import { IUser } from '../models/userModel';
+import { Request, Response } from "express";
+import { StatusCodes } from "http-status-codes";
+import { UserService } from "@/services/userService";
+import { IUser } from "@/interfaces/userInterface";
 import {
   ERROR_FETCHING_USERS,
   ERROR_CREATING_USER,
@@ -10,7 +9,8 @@ import {
   USER_NOT_FOUND,
   ERROR_ID_REQUIRED,
   ERROR_FETCHING_USER_BY_ID,
-} from '@/constants/errors';
+} from "@/constants/errors";
+import { hashPassword } from "@/utils/protectPassword";
 
 const userService = new UserService();
 
@@ -47,10 +47,10 @@ export const createUser = async (req: Request, res: Response): Promise<void> => 
   try {
     const { email, password } = req.body;
     // Hashed password
+    const passwordHashed = await hashPassword(password);
     const newUser: IUser = {
-      id: uuidv4(),
       email,
-      password
+      password: passwordHashed
     };
     
     const createdUser = await userService.createUser(newUser);
@@ -71,7 +71,7 @@ export const deleteUser = async (req: Request, res: Response): Promise<void> => 
     if (!result) {
       res.status(StatusCodes.NOT_FOUND).json({ message: USER_NOT_FOUND });
     } else {
-      res.status(StatusCodes.OK).json({ message: 'User deleted' });
+      res.status(StatusCodes.OK).json({ message: "User deleted" });
     }
   } catch (error) {
     res.status(StatusCodes.SERVICE_UNAVAILABLE).json({ message: ERROR_DELETING_USER });

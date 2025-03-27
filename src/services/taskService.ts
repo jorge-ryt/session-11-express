@@ -1,56 +1,60 @@
-import { ITaskService } from '../interfaces/taskInterface';
-import { ITask } from '../models/taskModel';
-import fs from 'fs';
-import { TASKS_FILE_PATH } from '../constants/filePaths';
-import path from 'path';
+import { Types } from "mongoose";
+import { ITaskService, ITask } from "@/interfaces/taskInterface";
+import Task from "@/models/taskModel";
+/**
+ * Old implementation
+ */
+// import fs from "fs";
+// import { TASKS_FILE_PATH } from "@/constants/filePaths";
+// import path from "path";
+
 
 export class TaskService implements ITaskService {
-  private static readDataFromFile(): ITask[] {
-    const filePath = path.resolve(TASKS_FILE_PATH);
-    if (!fs.existsSync(filePath)) {
-      fs.writeFileSync(filePath, JSON.stringify([]));
-    }
-    const data = fs.readFileSync(filePath, { encoding: "utf8" });
-    return JSON.parse(data);
-  }
+  /**
+   * 
+   * Old implementation
+   */
+  // private static readDataFromFile(): ITask[] {
+  //   const filePath = path.resolve(TASKS_FILE_PATH);
+  //   if (!fs.existsSync(filePath)) {
+  //     fs.writeFileSync(filePath, JSON.stringify([]));
+  //   }
+  //   const data = fs.readFileSync(filePath, { encoding: "utf8" });
+  //   return JSON.parse(data);
+  // }
 
-  private static writeDataToFile(tasks: ITask[]): void {
-    const filePath = path.resolve(TASKS_FILE_PATH);
-    fs.writeFileSync(filePath, JSON.stringify(tasks, null, 2));
-  }
+  // private static writeDataToFile(tasks: ITask[]): void {
+  //   const filePath = path.resolve(TASKS_FILE_PATH);
+  //   fs.writeFileSync(filePath, JSON.stringify(tasks, null, 2));
+  // }
 
   async getAllTasks(): Promise<ITask[]> {
-    return TaskService.readDataFromFile();
+    return await Task.find().exec();
   }
 
   async getTaskById(id: string): Promise<ITask | null> {
-    const tasks = TaskService.readDataFromFile();
-    return tasks.find(task => task.id === id) || null;
+    return await Task.findById(id).exec();
+  }
+
+  async getTasksByUserId(userId: Types.ObjectId): Promise<ITask[]> {
+    return await Task.find({ userId }).exec();
   }
 
   async createTask(task: ITask): Promise<ITask> {
-    const tasks = TaskService.readDataFromFile();
-    tasks.push(task);
-    TaskService.writeDataToFile(tasks);
-    return task;
+    const newTask = new Task(task);
+    return await newTask.save();
   }
 
   async updateTask(id: string, updatedTask: ITask): Promise<ITask | null> {
-    const tasks = TaskService.readDataFromFile();
-    const taskIndex = tasks.findIndex(task => task.id === id);
-    if (taskIndex === -1) return null;
-
-    tasks[taskIndex] = { ...tasks[taskIndex], ...updatedTask, updatedAt: new Date().toISOString() };
-    TaskService.writeDataToFile(tasks);
-    return tasks[taskIndex];
+    return await Task.findByIdAndUpdate(
+      id,
+      { ...updatedTask, updatedAt: new Date().toISOString() },
+      { new: true } // return the updated task
+    ).exec();
   }
 
   async deleteTask(id: string): Promise<boolean> {
-    const tasks = TaskService.readDataFromFile();
-    const updatedTasks = tasks.filter(task => task.id !== id);
-    if (updatedTasks.length === tasks.length) return false;
-
-    TaskService.writeDataToFile(updatedTasks);
-    return true;
+    const result = await Task.findByIdAndDelete(id).exec();
+    return result !== null;
   }
 }
