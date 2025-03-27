@@ -1,0 +1,20 @@
+[
+  {
+    "id": "a015500f-f46e-4ca2-bc81-be2334387848",
+    "title": "Task test 2",
+    "description": "This is another test",
+    "isCompleted": false,
+    "userId": "1",
+    "createdAt": "2025-03-26T23:49:59.479Z",
+    "updatedAt": "2025-03-26T23:49:59.479Z"
+  },
+  {
+    "id": "8ca96170-9384-4a69-9472-a4b761e4a10e",
+    "title": "Task from another user",
+    "description": "This is another test but from another user",
+    "isCompleted": false,
+    "userId": "2",
+    "createdAt": "2025-03-26T23:50:27.997Z",
+    "updatedAt": "2025-03-26T23:50:27.997Z"
+  }
+]

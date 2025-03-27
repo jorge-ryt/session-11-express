@@ -1,0 +1,38 @@
+{
+  "name": "session-11-express",
+  "version": "1.0.0",
+  "description": "Create a basic Restful API for a task manager",
+  "main": "index.js",
+  "scripts": {
+    "start": "ts-node -r tsconfig-paths/register src/server.ts",
+    "dev": "nodemon -r tsconfig-paths/register src/server.ts"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jorge-ryt/session-11-express.git"
+  },
+  "keywords": [],
+  "author": "Jorge Gomez",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/jorge-ryt/session-11-express/issues"
+  },
+  "homepage": "https://github.com/jorge-ryt/session-11-express#readme",
+  "dependencies": {
+    "express": "^4.21.2",
+    "http-status-codes": "^2.3.0",
+    "uuid": "^11.1.0"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.1",
+    "@types/node": "^22.13.13",
+    "nodemon": "^3.1.9",
+    "ts-node": "^10.9.2",
+    "ts-node-dev": "^2.0.0",
+    "tsconfig-paths": "^4.2.0",
+    "typescript": "^5.8.2"
+  },
+  "_moduleAliases": {
+    "@": "dist"
+  }
+}
